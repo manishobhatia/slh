@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xmlns:cxf="http://cxf.apache.org/core" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+	http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+	<!-- CXF Context Files -->
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
+
+
+	<!-- Resource Bundle definition -->
+	<!-- <bean id="RestMessageSource" class="com.iex.tv.core.utils.resource.TvResourceBundleMessageSource"> -->
+	<bean id="RestMessageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>rsserver_tvBundle</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Component Scans to load beans -->
+	<context:component-scan base-package="com.mob.rs.server" />
+
+
+	<!-- JAX-RS Server -->
+	<jaxrs:server id="jaxrs" address="/rs">
+		<jaxrs:serviceBeans>
+			<ref bean="PingEndpoint" />
+			<ref bean="FeedEndpoint" />
+		</jaxrs:serviceBeans>
+		<jaxrs:providers>
+			<!-- Marshalling Providers -->
+			<ref bean="JsonMarshallingProvider" />
+		</jaxrs:providers>
+		<jaxrs:extensionMappings>
+			<entry key="json" value="application/json" />
+			<entry key="xml" value="application/xml" />
+		</jaxrs:extensionMappings>
+		<jaxrs:features>
+			<cxf:logging />
+			<bean class="org.apache.cxf.transport.http.gzip.GZIPFeature" />
+		</jaxrs:features>
+	</jaxrs:server>
+
+
+	<!-- AOP -->
+	<aop:aspectj-autoproxy />
+
+	<util:properties id="configProps" location="classpath:config.properties" />
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="org.postgresql.Driver" />
+ 		
+		<property name="jdbcUrl" value="jdbc:postgresql://localhost:5432/slh" />
+		<property name="user" value="slh" />
+		<property name="password" value="slh" />
+<!-- 
+		<property name="jdbcUrl" value="jdbc:postgresql://127.5.92.1:5432/slh" />
+		<property name="user" value="admin" />
+		<property name="password" value="tlcH8YyyBTD_" />
+-->		
+<!-- 		
+		<property name="acquireIncrement" value="5" />
+		<property name="idleConnectionTestPeriod" value="60" />
+		<property name="maxPoolSize" value="100" />
+		<property name="maxStatements" value="50" />
+		<property name="minPoolSize" value="10" />
+ -->		
+	</bean>
+	<bean
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		id="entityManagerFactory">
+		<property name="persistenceUnitName" value="JpaPersistenceUnit" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="showSql" value="false" />
+			</bean>
+		</property>
+	</bean>
+	<bean class="org.springframework.orm.jpa.JpaTransactionManager"
+		id="transactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+</beans>

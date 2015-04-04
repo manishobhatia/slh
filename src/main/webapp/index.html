@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Santa's Little Helper</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet"
+	href="common/static/scripts/lib/jquery.mobile-1.3.1/jquery.mobile-1.3.1.min.css" />
+<link href="common/static/scripts/lib/photoswipe-3.0.5/photoswipe.css"
+	type="text/css" rel="stylesheet" />
+<style type="text/css">
+.gallery {
+	width: 100%;
+	height: 50px;
+	overflow: hidden;
+	border: 0px double #000;
+	white-space: nowrap;
+}
+
+.ui-title {
+	margin: 0.6em 10% 0.8em !important;
+}
+
+.label-text {
+	color: #B4886B;
+	font-weight: bold;
+	font: 80%/1 sans-serif;
+	vertical-align: middle;
+}
+
+.center-wrapper {
+	text-align: center;
+}
+
+.center-wrapper * {
+	margin: 0 auto;
+}
+</style>
+
+</head>
+<body>
+
+	<!--  	<script type="text/javascript" src="static/scripts/cordova-2.7.0.js"></script>   -->
+	<script type="text/javascript" src="static/scripts/requireConfig.js"></script>
+	<script data-main="static/scripts/main"
+		src="common/static/scripts/require-2.0.5.min.js"></script>
+
+	<!-- /page -->
+
+	<div id="categoryView" data-role="page" data-theme="a"
+		data-viewmodel="categoryViewModel">
+
+		<div data-role="header" data-position="fixed">
+			<h3>Santa's Little Helper</h3>
+		</div>
+
+		<div data-role="panel" id="locationPanel" data-position="right"
+			data-display="push" data-content-theme="a" data-swipe-close="false"
+			data-dismissible="true" data-mini="true">
+			<div id="states" data-role="collapsible-set" data-mini="true"
+				data-bind="foreach: categoryViewModel.statesArr" data-inset="false"
+				data-theme="a">
+
+				<div class="sh" data-bind="attr:{ record: geoLocationId}">
+					<h2>
+						<span data-bind="text: state"></span>
+					</h2>
+
+					<ul data-role="listview"
+						data-bind="foreach: categoryViewModel.siteArr" data-theme="c">
+
+						<li><a href="#" data-rel="dialog" data-mini="true"
+							data-bind="click:categoryViewModel.selectSite"><span
+								data-bind="text: name"></span></a></li>
+					</ul>
+
+				</div>
+			</div>
+		</div>
+
+
+		<div id="categoryContent" data-role="content">
+
+			<div data-role="fieldcontain">
+				<div class="ui-grid-b">
+					<div class="ui-block-a" style="width: 20%">
+						<label data-mini="true" for="locationButt"><span
+							class="label-text">Location:</span></label>
+					</div>
+					<div class="ui-block-b" style="width: 80%">
+						<div class="center-wrapper">
+							<a id="locationButt" href="#locationPanel" data-role="button"
+								data-mini="true" data-icon="bars" data-iconpos="right"><span
+								data-bind="text: categoryViewModel.siteName"></span></a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<div data-role="fieldcontain">
+				<div class="ui-grid-a">
+					<div class="ui-block-a" style="width: 20%">
+						<label data-mini="true" for="category"><span
+							class="label-text">Category:</span></label>
+					</div>
+					<div class="ui-block-b" style="width: 80%">
+						<select name="category" id="category" data-mini="true"
+							data-bind="options: categoryViewModel.categoryArr, value:categoryViewModel.categoryValue, optionsText: 'name', optionsValue: function(item) { return item;} ">
+						</select>
+					</div>
+				</div>
+			</div>
+
+
+			<fieldset data-role="controlgroup">
+				<legend data-mini="true">
+					<span class="label-text">Sub-Category:</span>
+				</legend>
+				<div class="ui-grid-a" id="subCategory"
+					data-bind="foreach: categoryViewModel.subCategoryArr">
+
+					<div class="ui-block-a">
+						<a href="#searchView" id="buttA" data-role="button"
+							data-mini="true" data-icon="arrow-r" data-corners="false"
+							data-iconshadow="false"
+							data-bind="click:categoryViewModel.searchView"> <span
+							data-bind="text: a.name"></span>
+						</a>
+					</div>
+
+					<div class="ui-block-b">
+						<a href="#searchView" id="buttB" data-role="button"
+							data-mini="true" data-icon="arrow-r" data-corners="false"
+							data-iconshadow="false"
+							data-bind="click:categoryViewModel.searchView"> <span
+							data-bind="text: b.name"></span>
+						</a>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+
+		<div data-role="footer" data-id="categoryView" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li><a href="#categoryView">Home</a></li>
+					<li><a href="#favView">Favorites</a></li>
+				</ul>
+			</div>
+			<!-- /navbar -->
+		</div>
+		<!-- /footer -->
+
+	</div>
+
+	<div id="searchView" data-role="page" data-theme="a"
+		data-add-back-btn="true" data-viewmodel="searchViewModel">
+
+		<div data-role="header" data-position="fixed">
+			<h1>
+				<span data-bind="text: searchViewModel.searchTitle"></span>
+			</h1>
+		</div>
+		<!-- /header -->
+
+		<div id="searchViewContent" data-role="content">
+			<div data-role="fieldcontain">
+				<div class="ui-grid-a">
+					<div class="ui-block-a" style="width: 20%">
+						<label for="hasPic"><span class="label-text">Search:</span></label>
+					</div>
+					<div class="ui-block-b" style="width: 80%">
+						<input type="search" name="searchTxt" id="searchTxt"
+							data-bind="value:searchViewModel.searchTxt" />
+					</div>
+				</div>
+			</div>
+
+			<div data-role="fieldcontain">
+
+				<div data-role="rangeslider" data-mini="true">
+					<label for="minPrice"><span class="label-text">Price:</span></label>
+					<input type="range" name="minPrice" id="minPrice" min="0"
+						data-bind="value:searchViewModel.minPrice, attr:{max:searchViewModel.maxSlider}" />
+					<label for="maxPrice"><span class="label-text">Price:</span></label>
+					<input type="range" name="maxPrice" id="maxPrice" min="0"
+						data-bind="value:searchViewModel.maxPrice, attr:{max:searchViewModel.maxSlider}" />
+				</div>
+			</div>
+
+			<div data-role="fieldcontain">
+				<div class="ui-grid-a">
+					<div class="ui-block-a" style="width: 20%">
+						<label for="hasPic"><span class="label-text">With
+								Pic:</span></label>
+					</div>
+					<div class="ui-block-b" style="width: 80%">
+						<select name="hasPic" id="hasPic" data-role="slider"
+							data-bind="value:searchViewModel.hasPic" data-mini="true">
+							<option value="no">No</option>
+							<option value="yes">Yes</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<div id="searchButton" data-role="controlgroup"
+				data-type="horizontal"
+				data-bind="foreach: searchViewModel.searchButtonArr">
+				<a href="#listView" data-role="button"
+					data-bind="click: searchViewModel.getFeedsJS"><span
+					data-bind="text: name"></span></a>
+			</div>
+		</div>
+		<!-- /content -->
+		
+		<div data-role="footer" data-id="categoryView" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li><a href="#categoryView">Home</a></li>
+					<li><a href="#favView">Favorites</a></li>
+				</ul>
+			</div>
+			<!-- /navbar -->
+		</div>
+		<!-- /footer -->
+
+	</div>
+	<!-- /page -->
+
+	<div id="listView" data-role="page" data-theme="a"
+		data-add-back-btn="true" data-viewmodel="listViewModel">
+
+		<div data-role="header" data-position="fixed">
+			<h1>
+				<span data-bind="text: listViewModel.pageTitle"></span>
+			</h1>
+		</div>
+		<!-- /header -->
+
+		<div id="listViewContent" data-role="content">
+			<ul data-bind="foreach: listViewModel.craigsFeed"
+				data-role="listview">
+				<li><a href="#pageView"
+					data-bind="click:listViewModel.pageViewJS"> <img
+						data-bind="attr: {src: thumb}" alt="missing" />
+
+						<h4>
+							<span data-bind="text: title"></span>
+						</h4>
+						<p>
+							<span data-bind="text: price"></span><span
+								data-bind="text: location"></span>
+						</p>
+				</a></li>
+			</ul>
+			<ul data-theme="c" data-role="listview">
+
+				<li data-icon="false"><a href="#"
+					data-bind="click:listViewModel.getMore">
+						<h4 align="center">
+							<span data-bind="text: listViewModel.loadResults"></span>
+						</h4>
+				</a></li>
+			</ul>
+
+		</div>
+		<!-- /content -->
+		
+		<div data-role="footer" data-id="categoryView" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li><a href="#categoryView">Home</a></li>
+					<li><a href="#favView">Favorites</a></li>
+				</ul>
+			</div>
+			<!-- /navbar -->
+		</div>
+		<!-- /footer -->
+
+	</div>
+	<!-- /page -->
+
+	<div id="pageView" data-role="page" data-theme="a"
+		data-add-back-btn="true" class="gallery-page"
+		data-viewmodel="pageViewModel">
+
+		<div data-role="header" data-position="fixed">
+			<h1>
+				<span data-bind="text:pageViewModel.pageTitle"></span>
+			</h1>
+			<div data-role="navbar" data-mini="true" data-iconpos="left">
+				<ul>
+					<li><a href="#" data-bind="click:pageViewModel.openInWebView"
+						data-icon="home">Website</a></li>
+					<li><a data-icon="edit"
+						data-bind="attr:{href:pageViewModel.mailTo}">Email</a></li>
+					<li><a href="#" data-icon="star"
+						data-bind="click:pageViewModel.addToFav">Favorite</a></li>
+				</ul>
+			</div>
+
+		</div>
+		<!-- /header -->
+
+		<div data-role="content">
+			<div id="title" data-role="fieldcontain">
+				<textarea id="fullTitle" disabled="disabled"
+					style="opacity: 1; color: #F4A460; font: bold;"
+					data-bind="value:pageViewModel.fullTitle">
+				</textarea>
+			</div>
+
+			<div data-role="fieldcontain">
+				<span class="label-text">Images:</span>
+				<div id="image-gallery" class="gallery"
+					data-bind="foreach: pageViewModel.images">
+					<a data-bind="attr: {href: imageUrl}" rel="external"><img
+						data-bind="attr: {src: thumbUrl}" alt="Image" /></a>
+				</div>
+			</div>
+
+			<div data-role="fieldcontain">
+				<label for="desc"><span class="label-text">Description:</span></label>
+				<div>
+					<textarea id="desc" data-bind="value:pageViewModel.description"
+						disabled="disabled" style="opacity: 1;">
+					</textarea>
+				</div>
+			</div>
+
+		</div>
+		<!-- /content -->
+		
+		<div data-role="footer" data-id="categoryView" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li><a href="#categoryView">Home</a></li>
+					<li><a href="#favView">Favorites</a></li>
+				</ul>
+			</div>
+			<!-- /navbar -->
+		</div>
+		<!-- /footer -->
+
+	</div>
+
+	<div id="favView" data-role="page" data-theme="a"
+		data-viewmodel="listViewModel">
+
+		<div data-role="header" data-position="fixed">
+			<h1>Favourites</h1>
+		</div>
+		<!-- /header -->
+
+		<div data-role="content"></div>
+		<!-- /content -->
+
+		<div data-role="footer" data-id="categoryView" data-position="fixed">
+			<div data-role="navbar">
+				<ul>
+					<li><a href="#categoryView">Home</a></li>
+					<li><a href="#favView">Favorites</a></li>
+				</ul>
+			</div>
+			<!-- /navbar -->
+		</div>
+		<!-- /footer -->
+
+	</div>
+</body>
+</html>
